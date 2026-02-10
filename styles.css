@@ -410,7 +410,7 @@ body.zen-mode {
 
 .bookmark-text {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   gap: 4px;
   min-width: 0;
   flex: 1;
@@ -678,6 +678,11 @@ body.dark-mode .toggle-collection {
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+}
+
+#spaces-container {
+  padding-left: 8px;
+
 }
 #leftPane.closed .pane-content,
 #rightPane.closed .pane-content {
@@ -1759,105 +1764,182 @@ body.dark-theme .collection-button svg {
   margin-right: 8px;
 }
 
-/* Left pane tabs styling */
-.left-pane-tabs {
+
+/* Left Pane Footer */
+.left-pane-footer {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-  z-index: 1010; /* H�gre �n zenSearchContainer (500) f�r att alltid ligga �verst */
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
 }
 
-.tab-nav {
-  display: flex;
-  background: rgba(240, 240, 240, 0.3);
-  border-radius: 8px 8px 0 0;
-  margin-bottom: 10px;
-}
-
-.tab-button {
-  flex: 1;
-  padding: 10px 15px;
-  background: transparent;
+.footer-btn {
+  background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  border-radius: 8px 8px 0 0;
-}
-
-.tab-button.active {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-  color: #333;
-}
-
-.tab-button:not(.active):hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.tab-content {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
-}
-
-.tab-pane {
-  display: none;
-  height: 100%;
-}
-
-.tab-pane.active {
-  display: block;
-}
-
-.spaces-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.space-item {
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
+  align-items: center;
+  gap: 4px;
+  color: #555;
+  font-size: 10px;
+  padding: 8px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.footer-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.footer-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #000;
+}
+
+.footer-btn:hover svg {
+  color: #000;
+  transform: translateY(-2px);
+}
+
+/* Styles for collapsed footer */
+#leftPane.closed .left-pane-footer {
+  flex-direction: column;
+  padding: 12px 0;
+  gap: 12px;
+  align-items: center;
+}
+
+#leftPane.closed .footer-btn {
+  padding: 4px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+#leftPane.closed .footer-btn span {
+  display: none;
+}
+
+#leftPane.closed .footer-btn svg {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+#leftPane.closed .footer-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease;
+}
+
+.close-modal {
+  color: #aaa;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  z-index: 10;
+  transition: color 0.2s;
+  line-height: 1;
 }
 
-.space-item:hover {
-  background: rgba(255, 255, 255, 0.8);
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.close-modal:hover,
+.close-modal:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.space-item.active {
-  background: rgba(76, 175, 80, 0.6);
-  color: white;
-  border-color: rgba(76, 175, 80, 0.8);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* Dark mode styles for tabs */
-body.dark-mode .tab-nav {
-  background: rgba(42, 42, 42, 0.6);
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-body.dark-mode .tab-button {
-  color: #e0e0e0;
+/* Dark Mode for Footer and Modal */
+body.dark-mode .left-pane-footer {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(40, 40, 40, 0.6);
 }
 
-body.dark-mode .tab-button.active {
-  background: rgba(60, 60, 60, 0.8);
+body.dark-mode .footer-btn {
+  color: #aaa;
+}
+
+body.dark-mode .footer-btn svg {
+  color: #aaa;
+}
+
+body.dark-mode .footer-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
-body.dark-mode .tab-button:not(.active):hover {
-  background: rgba(60, 60, 60, 0.4);
+body.dark-mode .footer-btn:hover svg {
+  color: #fff;
+}
+
+body.dark-mode .modal-content {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .close-modal {
+  color: #888;
+}
+
+body.dark-mode .close-modal:hover {
+  color: #fff;
 }
 
 body.dark-mode .space-item {
@@ -1880,7 +1962,8 @@ body.dark-mode .space-item.active {
 .add-space-container {
   display: flex;
   gap: 8px;
-  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 16px;
 }
 
 #newSpaceName {
@@ -1927,12 +2010,28 @@ body.dark-mode .space-item.active {
   transform: none;
 }
 
+.spaces-list {
+  padding: 12px 0;
+}
+
 /* Space item with delete functionality */
 .space-item {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 8px 12px;
+}
+
+.space-item.active {
+  background-color: #ededed;
+  border-radius: 8px;
+  margin-left: 8px;
+}
+
+.space-item.active > .space-name {
+  color: #000000;
+  font-weight: 700;
 }
 
 .space-name {

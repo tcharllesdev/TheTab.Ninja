@@ -4509,8 +4509,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Left pane tabs functionality
-  initializeLeftPaneTabs();
+  // Footer buttons functionality
+  initializeFooterButtons();
 
   // Funktion för att uppdatera sync-knappens synlighet
   function updateSyncButtonVisibility() {
@@ -4713,38 +4713,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Left pane tabs functionality
-function initializeLeftPaneTabs() {
-  // Load active tab from localStorage
-  if (bookmarkManagerData.activeLeftTab) {
-    switchLeftTab(bookmarkManagerData.activeLeftTab);
+// Footer buttons functionality
+function initializeFooterButtons() {
+  // Settings Modal Logic
+  const settingsBtn = document.getElementById("settingsFooterBtn");
+  const settingsModal = document.getElementById("settingsModal");
+  const closeModal = document.querySelector(".close-modal");
+
+  if (settingsBtn && settingsModal) {
+    settingsBtn.addEventListener("click", () => {
+      settingsModal.style.display = "block";
+    });
   }
 
-  // Add event listeners for tab buttons
-  document.querySelectorAll(".tab-button").forEach((button) => {
-    button.addEventListener("click", function () {
-      const tabName = this.dataset.tab;
-      switchLeftTab(tabName);
+  if (closeModal && settingsModal) {
+    closeModal.addEventListener("click", () => {
+      settingsModal.style.display = "none";
     });
+  }
+
+  // Close modal when clicking outside
+  window.addEventListener("click", (event) => {
+    if (event.target == settingsModal) {
+      settingsModal.style.display = "none";
+    }
   });
-}
 
-function switchLeftTab(tabName) {
-  // Update active tab in data
-  bookmarkManagerData.activeLeftTab = tabName;
-  saveToLocalStorage();
+  // Sync Button Logic
+  const syncBtn = document.getElementById("syncFooterBtn");
+  if (syncBtn) {
+    syncBtn.addEventListener("click", synchronizeWithGitHub);
+  }
 
-  // Remove active class from all tabs and panes
-  document
-    .querySelectorAll(".tab-button")
-    .forEach((btn) => btn.classList.remove("active"));
-  document
-    .querySelectorAll(".tab-pane")
-    .forEach((pane) => pane.classList.remove("active"));
-
-  // Add active class to selected tab and pane
-  document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
-  document.getElementById(`${tabName}-tab`).classList.add("active");
+  // Help Button Logic
+  const helpBtn = document.getElementById("helpFooterBtn");
+  if (helpBtn) {
+    helpBtn.addEventListener("click", function () {
+      if (bookmarkManagerData.openInNewTab) {
+        window.open("tabninja_help.html", "_blank");
+      } else {
+        window.location.href = "tabninja_help.html";
+      }
+    });
+  }
 }
 
 // Add activeLeftTab to the data structure
@@ -4868,44 +4879,10 @@ supportButton.addEventListener("mouseleave", function () {
   clearTimeout(confettiTimeout);
 });
 
-// Left pane tabs functionality
-function initializeLeftPaneTabs() {
-  // Load active tab from localStorage
-  if (bookmarkManagerData.activeLeftTab) {
-    switchLeftTab(bookmarkManagerData.activeLeftTab);
-  }
-
-  // Add event listeners for tab buttons
-  document.querySelectorAll(".tab-button").forEach((button) => {
-    button.addEventListener("click", function () {
-      const tabName = this.dataset.tab;
-      switchLeftTab(tabName);
-    });
-  });
-}
-
-function switchLeftTab(tabName) {
-  // Update active tab in data
-  bookmarkManagerData.activeLeftTab = tabName;
-  saveToLocalStorage();
-
-  // Remove active class from all tabs and panes
-  document
-    .querySelectorAll(".tab-button")
-    .forEach((btn) => btn.classList.remove("active"));
-  document
-    .querySelectorAll(".tab-pane")
-    .forEach((pane) => pane.classList.remove("active"));
-
-  // Add active class to selected tab and pane
-  document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
-  document.getElementById(`${tabName}-tab`).classList.add("active");
-}
-
 // Add activeLeftTab to the data structure
-if (!bookmarkManagerData.activeLeftTab) {
-  bookmarkManagerData.activeLeftTab = "spaces";
-}
+// if (!bookmarkManagerData.activeLeftTab) {
+//   bookmarkManagerData.activeLeftTab = "spaces";
+// }
 
 // Spaces Management Functions
 function renderSpaces() {
@@ -5147,11 +5124,12 @@ function initializeSpaces() {
 
 // Collection to Space Drag & Drop Functions
 function showSpaceDropZones() {
-  // Kontrollera om spaces-fliken är aktiv
-  const spacesTab = document.getElementById("spaces-tab");
-  if (!spacesTab || !spacesTab.classList.contains("active")) {
-    return; // Visa bara drop-zones om spaces-fliken är aktiv
-  }
+  // Check if spaces-tab exists (it was removed in refactor, so we can just check if we are in a state where drag is allowed)
+  // For now, always allow showing drop zones if we have space items
+  // const spacesTab = document.getElementById("spaces-tab");
+  // if (!spacesTab || !spacesTab.classList.contains("active")) {
+  //   return; // Visa bara drop-zones om spaces-fliken är aktiv
+  // }
 
   console.log("Showing space drop zones"); // Debug log
 
