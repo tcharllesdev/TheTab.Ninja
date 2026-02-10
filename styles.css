@@ -306,7 +306,6 @@ body.zen-mode {
   width: 30px;
   min-width: 30px;
   max-width: 30px;
-  opacity: 0.5;
   background-color: transparent !important;
   backdrop-filter: none !important;
 }
@@ -682,7 +681,6 @@ body.dark-mode .toggle-collection {
 
 #spaces-container {
   padding-left: 8px;
-
 }
 #leftPane.closed .pane-content,
 #rightPane.closed .pane-content {
@@ -1764,7 +1762,6 @@ body.dark-theme .collection-button svg {
   margin-right: 8px;
 }
 
-
 /* Left Pane Footer */
 .left-pane-footer {
   margin-top: auto;
@@ -1784,7 +1781,7 @@ body.dark-theme .collection-button svg {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: #555;
+  color: #3c3c3c;
   font-size: 10px;
   padding: 8px;
   border-radius: 8px;
@@ -1794,7 +1791,7 @@ body.dark-theme .collection-button svg {
 .footer-btn svg {
   width: 20px;
   height: 20px;
-  color: #555;
+  color: #3c3c3c;
   transition: all 0.2s ease;
 }
 
