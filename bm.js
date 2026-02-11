@@ -274,13 +274,13 @@ function applyFilter(searchTerm) {
 
     if (showCollection && !collectionElement.classList.contains("is-open")) {
       collectionElement.classList.add("is-open");
-      bookmarksContainerElement.style.display = "flex";
-      if (toggleButton) toggleButton.textContent = "∨";
+      // bookmarksContainerElement.style.display = "flex";
+      // if (toggleButton) toggleButton.textContent = "∨";
     } else if (!searchTerm) {
       if (collectionData && !collectionData.isOpen) {
         collectionElement.classList.remove("is-open");
-        bookmarksContainerElement.style.display = "none";
-        if (toggleButton) toggleButton.textContent = "∧";
+        // bookmarksContainerElement.style.display = "none";
+        // if (toggleButton) toggleButton.textContent = "∧";
       }
     }
 
@@ -1741,7 +1741,7 @@ function renderCollections() {
     // Toggle Button
     const toggleBtn = document.createElement("button");
     toggleBtn.className = "toggle-collection";
-    toggleBtn.textContent = collection.isOpen ? "∨" : "∧";
+    toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
 
     // Action Buttons
     const actions = document.createElement("div");
@@ -1836,9 +1836,14 @@ function renderCollections() {
     header.appendChild(actions);
 
     // Bookmarks Container
+    // Bookmarks Container
+    const bookmarksWrapper = document.createElement("div");
+    bookmarksWrapper.className = "bookmarks-wrapper";
+
     const bookmarksContainer = document.createElement("div");
     bookmarksContainer.className = "bookmarks";
-    bookmarksContainer.style.display = collection.isOpen ? "flex" : "none";
+    // bookmarksContainer.style.display = collection.isOpen ? "flex" : "none";
+    bookmarksWrapper.appendChild(bookmarksContainer);
 
     // Lägg till bokmärken (filtrera bort raderade)
     collection.bookmarks
@@ -1866,7 +1871,7 @@ function renderCollections() {
 
     // Sammansätt allt
     collectionElement.appendChild(header);
-    collectionElement.appendChild(bookmarksContainer);
+    collectionElement.appendChild(bookmarksWrapper);
     collectionsContainer.appendChild(collectionElement);
 
     // Draghanterare för hela collection
@@ -2561,10 +2566,14 @@ function toggleCollection(collectionId) {
       collectionElement.classList.toggle("is-open", collection.isOpen);
 
       // Uppdatera bookmarks container display
+      // Uppdatera bookmarks container display
+      // styles handled by CSS transition on .bookmarks-wrapper
+      /*
       const bookmarksContainer = collectionElement.querySelector(".bookmarks");
       if (bookmarksContainer) {
         bookmarksContainer.style.display = collection.isOpen ? "flex" : "none";
       }
+      */
     }
 
     saveToLocalStorage();
