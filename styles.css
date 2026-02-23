@@ -585,7 +585,7 @@ body.dark-mode .toggle-collection {
 
 .window {
   margin-bottom: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .window-box {
@@ -670,7 +670,6 @@ body.dark-mode .toggle-collection {
   background: rgb(255, 255, 255);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
   margin-bottom: 4px;
   transition: all 0.2s ease;
 }
@@ -757,6 +756,7 @@ body.dark-mode .toggle-collection {
 
 .spaces-h2-box {
   padding-left: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 .pane-content {
   transition: opacity 0.3s ease;
@@ -895,8 +895,7 @@ body.dark-mode .delete-collection {
   z-index: 1002;
 }
 #collections {
-  margin: 10px; /* L�gg till margin runt om */
-  padding: 10px; /* Om du vill ha luft inuti ocks� */
+  padding: 24px; /* L�gg till margin runt om */
   box-sizing: border-box;
   flex: 1 1 auto;
   overflow-y: auto;
@@ -1046,13 +1045,27 @@ body.dark-mode .placeholder {
 }
 
 .collection {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  padding: 10px;
+  margin-bottom: 42px;
   background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(8px);
-  border-radius: 8px; /* Uppdaterat fr�n 4px */
-  transition: all 0.3s ease; /* Uppdaterad fr�n ingen transition */
+  border-radius: 8px; /* Uppdaterat frn 4px */
+  transition: all 0.3s ease; /* Uppdaterad frn ingen transition */
+  position: relative;
+}
+
+.collection:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  bottom: -32px;
+  left: -24px;
+  right: -24px;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+body.dark-mode .collection:not(:last-child)::after {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .collection.dragging {
@@ -1062,25 +1075,17 @@ body.dark-mode .placeholder {
 
 .collection.is-open {
   transform: translateY(-2px);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow:
-    0 31px 9px 0 color(display-p3 0 0 0 / 0),
-    0 20px 8px 0 color(display-p3 0 0 0 / 0.01),
-    0 11px 7px 0 color(display-p3 0 0 0 / 0.02),
-    0 5px 5px 0 color(display-p3 0 0 0 / 0.04),
-    0 1px 3px 0 color(display-p3 0 0 0 / 0.05);
 }
 
 .collection:not(.is-open) {
   transform: translateY(1px);
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(1px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-.collection:hover {
+/*.collection:hover {
   border-color: rgba(0, 0, 0, 0.35);
-}
+}*/
 
 body.dark-mode .collection.is-open {
   box-shadow:
@@ -2041,9 +2046,8 @@ body.dark-mode .space-item.active {
 /* Add space container styling */
 .add-space-container {
   display: flex;
-  gap: 8px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 0 12px 16px 0;
+  gap: 0px;
+  padding: 0 12px 24px 0;
 }
 
 #newSpaceName {
@@ -2051,11 +2055,16 @@ body.dark-mode .space-item.active {
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
   outline: none;
-  font-size: 14px;
+  font-size: 12px;
   transition: all 0.3s ease;
+}
+
+#newSpaceName::placeholder {
+  color: #a9a9a9;
 }
 
 #newSpaceName:focus {
@@ -2069,7 +2078,7 @@ body.dark-mode .space-item.active {
   background: rgba(76, 175, 80, 0.6);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 0 6px 6px 0;
   cursor: pointer;
   font-size: 18px;
   font-weight: bold;
@@ -2102,6 +2111,7 @@ body.dark-mode .space-item.active {
   justify-content: space-between;
   /*border-radius: 8px;*/
   padding: 8px 16px;
+  cursor: pointer;
 }
 
 .space-item.active {
