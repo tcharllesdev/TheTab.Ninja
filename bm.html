@@ -1,22 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TheTab.Ninja</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
     <div id="leftPane">
-        <div class="pane-toggle" id="toggleLeftPane" title="Open/Close settings">☰</div>
+        <div class="pane-toggle" id="toggleLeftPane" title="Open/Close settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left-from-line-icon lucide-arrow-left-from-line">
+                <path d="m9 6-6 6 6 6" />
+                <path d="M3 12h14" />
+                <path d="M21 19V5" />
+            </svg>
+        </div>
         <div class="pane-content">
             <div id="spaces-container">
-                <h3>Spaces</h3>
-                <div class="add-space-container">
-                    <input type="text" id="newSpaceName" placeholder="New space name..." maxlength="30">
-                    <button id="addSpaceBtn" class="add-space-btn">+</button>
+                <div class="spaces-h2-box">
+                    <h3>Spaces</h3>
+                    <div class="add-space-container">
+                        <input type="text" id="newSpaceName" placeholder="New space name..." maxlength="30" />
+                        <button id="addSpaceBtn" class="add-space-btn">+</button>
+                    </div>
                 </div>
                 <div class="spaces-list" id="spacesList">
                     <!-- Spaces will be rendered here by JavaScript -->
@@ -25,21 +33,41 @@
         </div>
         <div class="left-pane-footer">
             <button id="helpFooterBtn" class="footer-btn" title="Help">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-question-mark-icon lucide-circle-question-mark"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-question-mark-icon lucide-circle-question-mark">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <path d="M12 17h.01" />
+                </svg>
                 <span>Help</span>
             </button>
-            <button id="syncFooterBtn" class="footer-btn" title="Sync">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-sync-icon lucide-cloud-sync"><path d="m17 18-1.535 1.605a5 5 0 0 1-8-1.5"/><path d="M17 22v-4h-4"/><path d="M20.996 15.251A4.5 4.5 0 0 0 17.495 8h-1.79a7 7 0 1 0-12.709 5.607"/><path d="M7 10v4h4"/><path d="m7 14 1.535-1.605a5 5 0 0 1 8 1.5"/></svg>
-                <span>Cloud Sync</span>
-            </button>
+            <div style="
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          ">
+                <div id="syncSuccessPopup" class="success-popup">Success</div>
+                <button id="syncFooterBtn" class="footer-btn" title="Sync">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud-sync-icon lucide-cloud-sync">
+                        <path d="m17 18-1.535 1.605a5 5 0 0 1-8-1.5" />
+                        <path d="M17 22v-4h-4" />
+                        <path d="M20.996 15.251A4.5 4.5 0 0 0 17.495 8h-1.79a7 7 0 1 0-12.709 5.607" />
+                        <path d="M7 10v4h4" />
+                        <path d="m7 14 1.535-1.605a5 5 0 0 1 8 1.5" />
+                    </svg>
+                    <span>Cloud Sync</span>
+                </button>
+            </div>
             <button id="settingsFooterBtn" class="footer-btn" title="Settings">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings">
+                    <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+                    <circle cx="12" cy="12" r="3" />
                 </svg>
                 <span>Settings</span>
             </button>
         </div>
     </div>
-    <div id="settingsModal" class="modal" style="display:none;">
+    <div id="settingsModal" class="modal" style="display: none">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <div id="settings">
@@ -53,30 +81,38 @@
                     <div class="setting-item">
                         <div class="setting-label">
                             <label for="openInNewTab">Open bookmarks in a new tab</label>
-                            <div class="setting-description">Prevent navigation away from your new tab page</div>
+                            <div class="setting-description">
+                                Prevent navigation away from your new tab page
+                            </div>
                         </div>
-                        <input type="checkbox" id="openInNewTab" class="setting-checkbox">
+                        <input type="checkbox" id="openInNewTab" class="setting-checkbox" />
                     </div>
                     <div class="setting-item">
                         <div class="setting-label">
                             <label for="closeWhenSaveTab">Close Chrome tabs when saved</label>
-                            <div class="setting-description">Automatically close tabs after saving to collection</div>
+                            <div class="setting-description">
+                                Automatically close tabs after saving to collection
+                            </div>
                         </div>
-                        <input type="checkbox" id="closeWhenSaveTab" class="setting-checkbox">
+                        <input type="checkbox" id="closeWhenSaveTab" class="setting-checkbox" />
                     </div>
                     <div class="setting-item">
                         <div class="setting-label">
                             <label for="darkMode">Dark mode</label>
-                            <div class="setting-description">Switch to dark theme for comfortable night browsing</div>
+                            <div class="setting-description">
+                                Switch to dark theme for comfortable night browsing
+                            </div>
                         </div>
-                        <input type="checkbox" id="darkMode" class="setting-checkbox">
+                        <input type="checkbox" id="darkMode" class="setting-checkbox" />
                     </div>
                     <div class="setting-item">
                         <div class="setting-label">
                             <label for="zenMode">Zen mode</label>
-                            <div class="setting-description">Minimalist interface showing only clock until you scroll</div>
+                            <div class="setting-description">
+                                Minimalist interface showing only clock until you scroll
+                            </div>
                         </div>
-                        <input type="checkbox" id="zenMode" class="setting-checkbox">
+                        <input type="checkbox" id="zenMode" class="setting-checkbox" />
                     </div>
                     <div class="setting-item-vertical">
                         <label for="collectionSortOrder">Collection sort order</label>
@@ -84,8 +120,12 @@
                             <option value="userdefined">User defined (position)</option>
                             <option value="name-az">Name (A-Z)</option>
                             <option value="name-za">Name (Z-A)</option>
-                            <option value="modified-new">Last modified (newest first)</option>
-                            <option value="modified-old">Last modified (oldest first)</option>
+                            <option value="modified-new">
+                                Last modified (newest first)
+                            </option>
+                            <option value="modified-old">
+                                Last modified (oldest first)
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -98,15 +138,15 @@
                     </h3>
                     <div class="setting-item-vertical">
                         <label for="githubUsername">GitHub Username</label>
-                        <input type="text" id="githubUsername" class="setting-input" placeholder="Enter your GitHub username">
+                        <input type="text" id="githubUsername" class="setting-input" placeholder="Enter your GitHub username" />
                     </div>
                     <div class="setting-item-vertical">
                         <label for="githubRepo">Repository Name</label>
-                        <input type="text" id="githubRepo" class="setting-input" placeholder="Enter repository name">
+                        <input type="text" id="githubRepo" class="setting-input" placeholder="Enter repository name" />
                     </div>
                     <div class="setting-item-vertical">
                         <label for="githubPat">Personal Access Token</label>
-                        <input type="password" id="githubPat" class="setting-input" placeholder="Enter your GitHub PAT">
+                        <input type="password" id="githubPat" class="setting-input" placeholder="Enter your GitHub PAT" />
                     </div>
                     <div class="help-link-container">
                         <a href="/github-setup-guide.html" target="_blank" class="help-link">
@@ -164,38 +204,48 @@
                         <label>Backup Location</label>
                         <div class="setting-item-horizontal">
                             <span id="backupFolderPath">Downloads</span>
-                            <button id="selectBackupFolder" class="import-button">Choose Subfolder</button>
+                            <button id="selectBackupFolder" class="import-button">
+                                Choose Subfolder
+                            </button>
                         </div>
                         <div class="setting-item-horizontal">
-                            <small style="color: #666; font-size: 0.9em;">Backups will be saved to Downloads/[subfolder]/</small>
-                            <button id="openBackupFolder" class="import-button" style="font-size: 0.9em;">Open Folder</button>
+                            <small style="color: #666; font-size: 0.9em">Backups will be saved to Downloads/[subfolder]/</small>
+                            <button id="openBackupFolder" class="import-button" style="font-size: 0.9em">
+                                Open Folder
+                            </button>
                         </div>
                     </div>
                     <div class="setting-item-vertical">
                         <label>Manual Backup</label>
-                        <button id="manualBackupButton" class="import-button">Create Backup Now</button>
+                        <button id="manualBackupButton" class="import-button">
+                            Create Backup Now
+                        </button>
                     </div>
                     <div class="setting-item-vertical">
                         <label>Export Data</label>
-                        <button id="exportButton" class="import-button">Export Tab Collections</button>
+                        <button id="exportButton" class="import-button">
+                            Export Tab Collections
+                        </button>
                     </div>
                     <div class="setting-item-vertical">
                         <label>Import Data</label>
                         <label for="importFile" class="import-button">
-                            <input type="file" id="importFile" accept=".json" style="display:none;">
+                            <input type="file" id="importFile" accept=".json" style="display: none" />
                             Import Tab Collections
                         </label>
                     </div>
                     <div class="setting-item-vertical">
                         <label>Import from Toby</label>
                         <label for="importTobyFile" class="import-button">
-                            <input type="file" id="importTobyFile" accept=".json" style="display:none;">
+                            <input type="file" id="importTobyFile" accept=".json" style="display: none" />
                             Import Toby data (JSON)
                         </label>
                     </div>
                     <div class="setting-item-vertical">
                         <label>Fix Favicon URLs</label>
-                        <button id="cleanupFaviconsButton" class="import-button">Fix Favicon URLs</button>
+                        <button id="cleanupFaviconsButton" class="import-button">
+                            Fix Favicon URLs
+                        </button>
                     </div>
                 </div>
 
@@ -207,7 +257,9 @@
                     </h3>
                     <div class="setting-item-vertical">
                         <label>Delete All Collections</label>
-                        <button id="deleteAllButton" class="delete-button">Delete All</button>
+                        <button id="deleteAllButton" class="delete-button">
+                            Delete All
+                        </button>
                     </div>
                 </div>
 
@@ -236,18 +288,19 @@
     </div>
     <div id="bookmarkManager">
         <div id="topBar">
-            <div style="display: flex; align-items: center;padding-left: 10px;">
-                <button class="mobile-pane-toggle" id="mobileLeftPaneToggle" title="Open Settings">⚙️</button>
-                <button id="syncButton" style="display: none;" title="Sync your collections with GitHub">
-                    <svg fill="currentColor" width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" transform="matrix(1,0,0,1,0,0)">
-                        <path d="M19.91,15.51H15.38a1,1,0,0,0,0,2h2.4A8,8,0,0,1,4,12a1,1,0,0,0-2,0,10,10,0,0,0,16.88,7.23V21a1,1,0,0,0,2,0V16.5A1,1,0,0,0,19.91,15.51ZM12,2A10,10,0,0,0,5.12,4.77V3a1,1,0,0,0-2,0V7.5a1,1,0,0,0,1,1h4.5a1,1,0,0,0,0-2H6.22A8,8,0,0,1,20,12a1,1,0,0,0,2,0A10,10,0,0,0,12,2Z"></path>
-                    </svg>
+            <div style="display: flex; align-items: center; padding-left: 10px">
+                <button class="mobile-pane-toggle" id="mobileLeftPaneToggle" title="Open Settings">
+                    ⚙️
                 </button>
-                <button id="addCollection" title="Create a new collection for your bookmarks">Add Collection</button>
+                <button id="addCollection" title="Create a new collection for your bookmarks">
+                    Add Collection
+                </button>
             </div>
-            <input type="text" id="searchBox" placeholder="Search Collections/Bookmarks (#collections, %all, |or) #blue|red. ?google, !chatgpt">
-            <div style="display: flex; align-items: center;padding-right: 10px;">
-                <button class="mobile-pane-toggle" id="mobileRightPaneToggle" title="Open Tabs">📋</button>
+            <input type="text" id="searchBox" placeholder="Search Collections/Bookmarks (#collections, %all, |or) #blue|red. ?google, !chatgpt" />
+            <div style="display: flex; align-items: center; padding-right: 10px">
+                <button class="mobile-pane-toggle" id="mobileRightPaneToggle" title="Open Tabs">
+                    📋
+                </button>
                 <a href="https://buymeacoffee.com/kodar.ninja" target="_blank" id="supportButton" title="Fuel my code with caffeine – every cup helps me keep developing awesome features!">
                     <svg class="donation-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 12H4v4a4 4 0 004 4h5a4 4 0 004-4v-4zm0 0h2a2 2 0 012 2v1a2 2 0 01-2 2h-2m-4-8s1-1 .5-2l-1-2C12 4 13 3 13 3M8.64 9s1-1 .5-2l-1-2c-.5-1 .5-2 .5-2" />
@@ -257,7 +310,7 @@
             </div>
         </div>
         <div id="zenSearchContainer">
-            <input type="text" id="zenSearchBox" placeholder="Search...">
+            <input type="text" id="zenSearchBox" placeholder="Search..." />
         </div>
         <div id="zenDateTime" class="zen-datetime-display">
             <div class="zen-time"></div>
@@ -266,17 +319,30 @@
         <div id="collections"></div>
     </div>
     <div id="rightPane">
-        <div class="pane-toggle" id="toggleRightPane" title="Open/Close Chrome Tabs-list">☰</div>
+        <div class="pane-toggle" id="toggleRightPane" title="Open/Close Chrome Tabs-list">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left-from-line-icon lucide-arrow-left-from-line">
+                <path d="m9 6-6 6 6 6" />
+                <path d="M3 12h14" />
+                <path d="M21 19V5" />
+            </svg>
+        </div>
         <div class="pane-content">
             <div id="content"></div>
         </div>
     </div>
-    <div id="tabPreview" style="display:none; position:absolute; z-index:1000; background:#fff; border:1px solid #ccc; padding:5px;"></div>
+    <div id="tabPreview" style="
+        display: none;
+        position: absolute;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 5px;
+      "></div>
 
     <!-- First Sync Success Notification -->
     <div id="firstSyncNotification">
         <div class="notification-icon">🎉</div>
-        <div>Do you like TheTab.Ninja?<br>Please leave a ⭐️!</div>
+        <div>Do you like TheTab.Ninja?<br />Please leave a ⭐️!</div>
         <a href="https://chromewebstore.google.com/detail/thetabninja/bnmjmbmlfohkaghofdaadenippkgpmab" target="_blank" class="store-link">
             Rate on Chrome Store
         </a>

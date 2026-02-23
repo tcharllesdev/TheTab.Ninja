@@ -894,8 +894,8 @@ async function synchronizeWithGitHub(retryCount = 0) {
     return;
   }
 
-  const syncButton = document.getElementById("syncButton");
-  syncButton.classList.add("syncing");
+  const syncBtn = document.getElementById("syncFooterBtn");
+  if (syncBtn) syncBtn.classList.add("syncing");
   isSyncing = true;
 
   try {
@@ -987,6 +987,15 @@ async function synchronizeWithGitHub(retryCount = 0) {
     renderSpaces(); // Uppdatera spaces-listan efter sync
     saveToLocalStorage();
 
+    // Show success popup
+    const successPopup = document.getElementById("syncSuccessPopup");
+    if (successPopup) {
+      successPopup.classList.add("show");
+      setTimeout(() => {
+        successPopup.classList.remove("show");
+      }, 3000);
+    }
+
     // Check if this is the first successful sync and show notification
     checkAndShowFirstSyncNotification();
   } catch (error) {
@@ -998,7 +1007,7 @@ async function synchronizeWithGitHub(retryCount = 0) {
     }
   } finally {
     isSyncing = false;
-    syncButton.classList.remove("syncing");
+    if (syncBtn) syncBtn.classList.remove("syncing");
   }
 }
 
@@ -3834,14 +3843,19 @@ function createChromeTabElement(tab, windowId) {
 // Funktion för att visa reservinnehåll
 function displayFallbackContent(contentDiv) {
   const fallbackDiv = document.createElement("div");
-  fallbackDiv.className = "window";
+  fallbackDiv.className = "window is-open";
   fallbackDiv.innerHTML = `
-        <div class="window-title">Chrome Tabs Not Available</div>
-        <div class="tabs-list" style="display: block;">
-            <div class="tab" draggable="true">
-                <img src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Chrome Web Store" width="16" height="16">
-                <span class="tab-title" title="https://chromewebstore.google.com/category/extensions?utm_source=ext_app_menu">Install the TheTab.Ninja extension for tab-info</span>
-            </div>
+        <div class="window-box">
+            <h2 class="window-title">Chrome Tabs Not Available</h2>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down toggle-window"><path d="m6 9 6 6 6-6"></path></svg>
+        </div>
+        <div class="tabs-wrapper">
+          <div class="tabs-list">
+              <div class="tab" draggable="true">
+                  <img src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Chrome Web Store" width="16" height="16">
+                  <span class="tab-title" title="https://chromewebstore.google.com/category/extensions?utm_source=ext_app_menu">Install the TheTab.Ninja extension for tab-info</span>
+              </div>
+          </div>
         </div>
     `;
 
@@ -3882,9 +3896,36 @@ async function fetchChromeTabs() {
             e.dataTransfer.setData("text/plain", "chromeWindow");
           });
 
-          const windowTitle = document.createElement("div");
+          const windowBox = document.createElement("div");
+          windowBox.className = "window-box";
+
+          const windowTitle = document.createElement("h2");
           windowTitle.className = "window-title";
           windowTitle.textContent = `Chrome Window ID: ${windowData.windowId} (${windowData.tabs.length} tabs)`;
+
+          const svgIcon = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg",
+          );
+          svgIcon.setAttribute("width", "24");
+          svgIcon.setAttribute("height", "24");
+          svgIcon.setAttribute("viewBox", "0 0 24 24");
+          svgIcon.setAttribute("fill", "none");
+          svgIcon.setAttribute("stroke", "currentColor");
+          svgIcon.setAttribute("stroke-width", "1.25");
+          svgIcon.setAttribute("stroke-linecap", "round");
+          svgIcon.setAttribute("stroke-linejoin", "round");
+          svgIcon.setAttribute(
+            "class",
+            "lucide lucide-chevron-down-icon lucide-chevron-down toggle-window",
+          );
+          svgIcon.innerHTML = '<path d="m6 9 6 6 6-6"></path>';
+
+          windowBox.appendChild(windowTitle);
+          windowBox.appendChild(svgIcon);
+
+          const tabsWrapper = document.createElement("div");
+          tabsWrapper.className = "tabs-wrapper";
 
           const tabsList = document.createElement("div");
           tabsList.className = "tabs-list";
@@ -3892,7 +3933,9 @@ async function fetchChromeTabs() {
             (bookmarkManagerData.chromeWindowStates &&
               bookmarkManagerData.chromeWindowStates[windowData.windowId]) !==
             false; // Standard: öppen
-          tabsList.style.display = isOpen ? "block" : "none";
+          if (isOpen) {
+            windowDiv.classList.add("is-open");
+          }
 
           const groups = windowData.groups || [];
           const groupMap = {};
@@ -4013,16 +4056,21 @@ async function fetchChromeTabs() {
             tabsList.appendChild(tabDiv);
           });
 
-          windowDiv.appendChild(windowTitle);
-          windowDiv.appendChild(tabsList);
+          tabsWrapper.appendChild(tabsList);
+          windowDiv.appendChild(windowBox);
+          windowDiv.appendChild(tabsWrapper);
           contentDiv.appendChild(windowDiv);
 
-          windowTitle.addEventListener("click", () => {
-            const newState =
-              tabsList.style.display === "none" ? "block" : "none";
-            tabsList.style.display = newState;
+          windowBox.addEventListener("click", () => {
+            const isCurrentlyOpen = windowDiv.classList.contains("is-open");
+            if (!isCurrentlyOpen) {
+              windowDiv.classList.add("is-open");
+            } else {
+              windowDiv.classList.remove("is-open");
+            }
+
             bookmarkManagerData.chromeWindowStates[windowData.windowId] =
-              newState === "block";
+              !isCurrentlyOpen;
             saveToLocalStorage();
           });
         });
@@ -4409,24 +4457,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("githubUsername").addEventListener("change", (e) => {
     bookmarkManagerData.githubConfig.username = e.target.value;
     saveToLocalStorage();
-    updateSyncButtonVisibility();
   });
 
   document.getElementById("githubRepo").addEventListener("change", (e) => {
     bookmarkManagerData.githubConfig.repo = e.target.value;
     saveToLocalStorage();
-    updateSyncButtonVisibility();
   });
 
   document.getElementById("githubPat").addEventListener("change", (e) => {
     bookmarkManagerData.githubConfig.pat = e.target.value;
     saveToLocalStorage();
-    updateSyncButtonVisibility();
   });
-
-  document
-    .getElementById("syncButton")
-    .addEventListener("click", synchronizeWithGitHub);
 
   // Help button event listener
   document.getElementById("helpButton").addEventListener("click", function () {
@@ -4521,11 +4562,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Footer buttons functionality
   initializeFooterButtons();
 
-  // Funktion för att uppdatera sync-knappens synlighet
-  function updateSyncButtonVisibility() {
-    const syncButton = document.getElementById("syncButton");
-    syncButton.style.display = isGitHubConfigValid() ? "flex" : "none";
-  }
+  // Visibility function removed.
 
   function updateBackupSettingsVisibility() {
     const enabled = bookmarkManagerData.autoBackup.frequency !== "disabled";
@@ -4581,7 +4618,6 @@ document.addEventListener("DOMContentLoaded", () => {
     bookmarkManagerData.githubConfig.repo || "";
   document.getElementById("githubPat").value =
     bookmarkManagerData.githubConfig.pat || "";
-  updateSyncButtonVisibility();
 
   // Load backup settings
   loadBackupSettings();
