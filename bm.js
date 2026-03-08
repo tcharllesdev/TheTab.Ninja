@@ -12,8 +12,8 @@ let bookmarkManagerData = {
   closeWhenSaveTab: false,
   activeLeftTab: "spaces",
   zenMode: false,
-  spaces: ["Everything"], // Default space that cannot be removed
-  currentSpace: "Everything",
+  spaces: ["Bookmarks"], // Default space that cannot be removed
+  currentSpace: "Bookmarks",
   collectionSortOrder: "userdefined", // New setting for collection sorting
   autoBackup: {
     enabled: true, // Default enabled
@@ -938,15 +938,15 @@ async function synchronizeWithGitHub(retryCount = 0) {
     );
 
     // Steg 4.5: Merga spaces
-    const localSpaces = (localData?.spaces || ["Everything"]).map(enrichSpace); // Bra att enricha lokal data också
+    const localSpaces = (localData?.spaces || ["Bookmarks"]).map(enrichSpace); // Bra att enricha lokal data också
     const remoteSpaces = remoteData?.spaces || [
-      { name: "Everything", deleted: false, lastModified: Date.now() },
+      { name: "Bookmarks", deleted: false, lastModified: Date.now() },
     ];
     const mergedSpaces = mergeSpaces(localSpaces, remoteSpaces);
 
     // Säkerställ att currentSpace fortfarande är giltig
-    const localCurrentSpace = localData?.currentSpace || "Everything";
-    const remoteCurrentSpace = remoteData?.currentSpace || "Everything";
+    const localCurrentSpace = localData?.currentSpace || "Bookmarks";
+    const remoteCurrentSpace = remoteData?.currentSpace || "Bookmarks";
     let mergedCurrentSpace = localCurrentSpace;
 
     // Om lokalt currentSpace inte finns i merged spaces, använd remote eller fallback
@@ -957,7 +957,7 @@ async function synchronizeWithGitHub(retryCount = 0) {
       if (spaceNames.includes(remoteCurrentSpace)) {
         mergedCurrentSpace = remoteCurrentSpace;
       } else {
-        mergedCurrentSpace = "Everything";
+        mergedCurrentSpace = "Bookmarks";
       }
     }
 
@@ -1146,20 +1146,20 @@ function mergeSpaces(localSpaces, remoteSpaces) {
     });
   }
 
-  // Convert back to array and ensure Everything is always present and not deleted
+  // Convert back to array and ensure Bookmarks is always present and not deleted
   const mergedSpaces = Array.from(spaceMap.values());
 
-  // Ensure Everything always exists and is not deleted
-  let everythingSpace = mergedSpaces.find((s) => s.name === "Everything");
+  // Ensure Bookmarks always exists and is not deleted
+  let everythingSpace = mergedSpaces.find((s) => s.name === "Bookmarks");
   if (!everythingSpace) {
     everythingSpace = {
-      name: "Everything",
+      name: "Bookmarks",
       deleted: false,
       lastModified: Date.now(),
     };
     mergedSpaces.push(everythingSpace);
   } else {
-    everythingSpace.deleted = false; // Everything can never be deleted
+    everythingSpace.deleted = false; // Bookmarks can never be deleted
   }
 
   return mergedSpaces;
@@ -1593,6 +1593,30 @@ function loadFromLocalStorage() {
         },
       };
 
+      // MIGRATION: Rename "Everything" to "Bookmarks"
+      if (bookmarkManagerData.spaces) {
+        bookmarkManagerData.spaces.forEach((space, index) => {
+          if (typeof space === "string" && space === "Everything") {
+            bookmarkManagerData.spaces[index] = "Bookmarks";
+          } else if (typeof space === "object" && space.name === "Everything") {
+            space.name = "Bookmarks";
+          }
+        });
+      }
+      if (bookmarkManagerData.currentSpace === "Everything") {
+        bookmarkManagerData.currentSpace = "Bookmarks";
+      }
+      if (bookmarkManagerData.collections) {
+        bookmarkManagerData.collections.forEach((collection) => {
+          if (collection.spaces && Array.isArray(collection.spaces)) {
+            const idx = collection.spaces.indexOf("Everything");
+            if (idx !== -1) {
+              collection.spaces[idx] = "Bookmarks";
+            }
+          }
+        });
+      }
+
       // Säkerställ att leftPaneOpen och rightPaneOpen har värden
       bookmarkManagerData.leftPaneOpen =
         parsedData.leftPaneOpen !== undefined ? parsedData.leftPaneOpen : true;
@@ -1681,16 +1705,12 @@ function renderCollections() {
   const collectionsContainer = document.getElementById("collections");
   collectionsContainer.innerHTML = "";
 
-  const currentSpace = bookmarkManagerData.currentSpace || "Everything";
+  const currentSpace = bookmarkManagerData.currentSpace || "Bookmarks";
 
   const sortedCollections = bookmarkManagerData.collections
     .filter((c) => !c.deleted)
     .filter((c) => {
-      // Om Everything är valt, visa alla collections
-      if (currentSpace === "Everything") {
-        return true;
-      }
-      // Annars visa bara collections som tillhör det valda spacet
+      // Visa bara collections som tillhör det valda spacet
       return (
         c.spaces && Array.isArray(c.spaces) && c.spaces.includes(currentSpace)
       );
@@ -1740,7 +1760,7 @@ function renderCollections() {
                         margin-left: 10px;
                         font-weight: normal;
                     `;
-      const visibleSpaces = collection.spaces.filter((s) => s !== "Everything");
+      const visibleSpaces = collection.spaces.filter((s) => s !== "Bookmarks");
       if (visibleSpaces.length > 0) {
         spacesIndicator.textContent = `(${visibleSpaces.join(", ")})`;
         title.appendChild(spacesIndicator);
@@ -2222,7 +2242,7 @@ function enrichCollection(collection) {
     deleted: false,
     position: 0,
     bookmarks: [],
-    spaces: ["Everything"], // Default: tillhör Everything space (bakåtkompatibilitet)
+    spaces: ["Bookmarks"], // Default: tillhör Bookmarks space (bakåtkompatibilitet)
     ...collection,
     // Ensure lastModified is a valid number (for old collections that might not have it)
     lastModified:
@@ -2230,11 +2250,11 @@ function enrichCollection(collection) {
         ? Number(collection.lastModified)
         : Date.now(),
     bookmarks: (collection.bookmarks || []).map(enrichBookmark),
-    // Säkerställ att spaces alltid är en array och innehåller minst Everything
+    // Säkerställ att spaces alltid är en array och innehåller minst Bookmarks
     spaces:
       Array.isArray(collection.spaces) && collection.spaces.length > 0
         ? collection.spaces
-        : ["Everything"],
+        : ["Bookmarks"],
   };
 }
 
@@ -2447,8 +2467,8 @@ function editCollectionSpaces(collectionId) {
   migrateSpacesToObjectFormat();
   const availableSpaces = bookmarkManagerData.spaces
     .filter((space) => !space.deleted)
-    .map((space) => space.name) || ["Everything"];
-  const currentSpaces = collection.spaces || ["Everything"];
+    .map((space) => space.name) || ["Bookmarks"];
+  const currentSpaces = collection.spaces || ["Bookmarks"];
 
   // Kontrollera om dark mode är aktivt för labels
   const isDarkMode = document.body.classList.contains("dark-mode");
@@ -2457,12 +2477,10 @@ function editCollectionSpaces(collectionId) {
   const spacesHtml = availableSpaces
     .map((space) => {
       const checked = currentSpaces.includes(space) ? "checked" : "";
-      const disabled = space === "Everything" ? "disabled" : "";
       return `
             <label style="display: block; margin: 5px 0; color: ${labelColor}; cursor: pointer;">
-                <input type="checkbox" value="${space}" ${checked} ${disabled} style="margin-right: 8px;">
+                <input type="checkbox" value="${space}" ${checked} style="margin-right: 8px;">
                 ${space}
-                ${space === "Everything" ? " (always included)" : ""}
             </label>
         `;
     })
@@ -2531,11 +2549,6 @@ function editCollectionSpaces(collectionId) {
     const selectedSpaces = Array.from(checkboxes)
       .filter((cb) => cb.checked)
       .map((cb) => cb.value);
-
-    // Always ensure Everything is included
-    if (!selectedSpaces.includes("Everything")) {
-      selectedSpaces.unshift("Everything");
-    }
 
     collection.spaces = selectedSpaces;
     collection.lastModified = Date.now();
@@ -2658,13 +2671,13 @@ async function addBookmark(collectionId) {
             " placeholder="https://example.com">
         </div>
         <div style="margin: 15px 0;">
-            <label style="display: block; margin-bottom: 8px; color: ${textColor}; font-weight: 500;">Description (optional):</label>
-            <textarea id="bookmarkDescInput" style="
+            <label style="display: block; margin-bottom: 8px; color: ${textColor}; font-weight: 500;">Description (optional, max 55 chars):</label>
+            <textarea id="bookmarkDescInput" maxlength="55" style="
                 width: 100%; padding: 12px; border: 2px solid ${inputBorder}; 
                 border-radius: 6px; font-size: 14px; box-sizing: border-box;
                 background: ${inputBg}; color: ${textColor}; resize: vertical;
                 min-height: 80px; transition: border-color 0.2s ease;
-            " placeholder="Enter description (optional)"></textarea>
+            " placeholder="Enter description (max 55 characters)"></textarea>
         </div>
         <div style="margin-top: 25px; text-align: right;">
             <button id="cancelCreateBookmark" style="
@@ -2888,13 +2901,13 @@ async function editBookmark(collectionId, bookmarkId) {
             " placeholder="https://example.com">
         </div>
         <div style="margin: 15px 0;">
-            <label style="display: block; margin-bottom: 8px; color: ${textColor}; font-weight: 500;">Description (optional):</label>
-            <textarea id="bookmarkDescInput" style="
+            <label style="display: block; margin-bottom: 8px; color: ${textColor}; font-weight: 500;">Description (optional, max 55 chars):</label>
+            <textarea id="bookmarkDescInput" maxlength="55" style="
                 width: 100%; padding: 12px; border: 2px solid ${inputBorder}; 
                 border-radius: 6px; font-size: 14px; box-sizing: border-box;
                 background: ${inputBg}; color: ${textColor}; resize: vertical;
                 min-height: 80px; transition: border-color 0.2s ease;
-            " placeholder="Enter description (optional)">${bookmark.description || ""}</textarea>
+            " placeholder="Enter description (max 55 characters)">${bookmark.description || ""}</textarea>
         </div>
         <div style="margin-top: 25px; text-align: right;">
             <button id="cancelEditBookmark" style="
@@ -4954,7 +4967,7 @@ function renderSpaces() {
 
     spaceItem.innerHTML = `
             <span class="space-name">${spaceName}</span>
-            ${spaceName !== "Everything" ? '<button class="delete-space-btn" data-space="' + spaceName + '">×</button>' : ""}
+            ${spaceName !== "Bookmarks" ? '<button class="delete-space-btn" data-space="' + spaceName + '">×</button>' : ""}
         `;
 
     // Add click listener for space selection
@@ -5025,7 +5038,7 @@ function addSpace() {
 // Migration function to convert spaces from string array to object array
 function migrateSpacesToObjectFormat() {
   if (!Array.isArray(bookmarkManagerData.spaces)) {
-    bookmarkManagerData.spaces = ["Everything"];
+    bookmarkManagerData.spaces = ["Bookmarks"];
   }
 
   const needsMigration = bookmarkManagerData.spaces.some(
@@ -5046,8 +5059,8 @@ function migrateSpacesToObjectFormat() {
 }
 
 function deleteSpace(spaceName) {
-  if (spaceName === "Everything") {
-    alert('Cannot delete the "Everything" space');
+  if (spaceName === "Bookmarks") {
+    alert('Cannot delete the "Bookmarks" space');
     return;
   }
 
@@ -5064,9 +5077,9 @@ function deleteSpace(spaceName) {
       spaceObj.lastModified = Date.now();
     }
 
-    // If this was the current space, switch to Everything
+    // If this was the current space, switch to Bookmarks
     if (bookmarkManagerData.currentSpace === spaceName) {
-      bookmarkManagerData.currentSpace = "Everything";
+      bookmarkManagerData.currentSpace = "Bookmarks";
     }
 
     // Remove this space from all collections that use it
@@ -5075,12 +5088,12 @@ function deleteSpace(spaceName) {
         const spaceIndex = collection.spaces.indexOf(spaceName);
         if (spaceIndex > -1) {
           collection.spaces.splice(spaceIndex, 1);
-          // Ensure at least Everything remains
+          // Ensure at least Bookmarks remains
           if (
             collection.spaces.length === 0 ||
-            !collection.spaces.includes("Everything")
+            !collection.spaces.includes("Bookmarks")
           ) {
-            collection.spaces = ["Everything"];
+            collection.spaces = ["Bookmarks"];
           }
           collection.lastModified = Date.now();
         }
@@ -5103,29 +5116,29 @@ function selectSpace(spaceName) {
 }
 
 function initializeSpaces() {
-  // Ensure spaces array exists and has Everything
+  // Ensure spaces array exists and has Bookmarks
   if (
     !bookmarkManagerData.spaces ||
     !Array.isArray(bookmarkManagerData.spaces)
   ) {
-    bookmarkManagerData.spaces = ["Everything"];
+    bookmarkManagerData.spaces = ["Bookmarks"];
   }
 
   // Migrate to object format
   migrateSpacesToObjectFormat();
 
-  // Ensure Everything exists and is not deleted
+  // Ensure Bookmarks exists and is not deleted
   let everythingSpace = bookmarkManagerData.spaces.find(
-    (s) => s.name === "Everything",
+    (s) => s.name === "Bookmarks",
   );
   if (!everythingSpace) {
     bookmarkManagerData.spaces.unshift({
-      name: "Everything",
+      name: "Bookmarks",
       deleted: false,
       lastModified: Date.now(),
     });
   } else {
-    everythingSpace.deleted = false; // Everything can never be deleted
+    everythingSpace.deleted = false; // Bookmarks can never be deleted
   }
 
   // Ensure currentSpace is set and exists
@@ -5136,7 +5149,7 @@ function initializeSpaces() {
     !bookmarkManagerData.currentSpace ||
     !activeSpaceNames.includes(bookmarkManagerData.currentSpace)
   ) {
-    bookmarkManagerData.currentSpace = "Everything";
+    bookmarkManagerData.currentSpace = "Bookmarks";
   }
 
   // Add event listeners
@@ -5261,7 +5274,7 @@ function spaceDropHandler(e) {
   );
   if (collection) {
     if (!collection.spaces) {
-      collection.spaces = ["Everything"];
+      collection.spaces = ["Bookmarks"];
     }
 
     if (!collection.spaces.includes(targetSpaceName)) {

@@ -409,7 +409,7 @@ body.zen-mode {
   border: 1px solid #ddd;
   padding: 12px;
   max-width: 260px;
-  height: auto;
+  height: 32px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(1px);
   position: relative;
@@ -417,6 +417,7 @@ body.zen-mode {
   overflow: hidden;
   display: flex;
   flex-direction: row;
+  align-items: center; /* Default align center, description makes it flex-start and increases height via :has */
   gap: 8px;
   border-radius: 4px;
   transition:
@@ -424,6 +425,12 @@ body.zen-mode {
     opacity 0.2s ease;
   will-change: transform, opacity;
 }
+
+/* Conditionally style when the bookmark has a non-empty paragraph (description) */
+.bookmark:has(p:not(:empty)) {
+  align-items: flex-start; /* Align top when there's description */
+}
+
 .bookmark:hover {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border: 1px solid #aeaeae;
@@ -438,9 +445,14 @@ body.zen-mode {
 .bookmark-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0px; /* Default no gap */
   min-width: 0;
   flex: 1;
+}
+
+/* Add gap back when there's a description */
+.bookmark-text:has(p:not(:empty)) {
+  gap: 4px;
 }
 
 .bookmark h3 {
