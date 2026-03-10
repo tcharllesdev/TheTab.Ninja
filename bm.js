@@ -1149,17 +1149,20 @@ function mergeSpaces(localSpaces, remoteSpaces) {
   // Convert back to array and ensure Bookmarks is always present and not deleted
   const mergedSpaces = Array.from(spaceMap.values());
 
-  // Ensure Bookmarks always exists and is not deleted
-  let everythingSpace = mergedSpaces.find((s) => s.name === "Bookmarks");
-  if (!everythingSpace) {
-    everythingSpace = {
-      name: "Bookmarks",
-      deleted: false,
-      lastModified: Date.now(),
-    };
-    mergedSpaces.push(everythingSpace);
-  } else {
-    everythingSpace.deleted = false; // Bookmarks can never be deleted
+  // Ensure at least one active space exists
+  let activeMergedSpaces = mergedSpaces.filter((s) => !s.deleted);
+  if (activeMergedSpaces.length === 0) {
+    let everythingSpace = mergedSpaces.find((s) => s.name === "Bookmarks");
+    if (!everythingSpace) {
+      everythingSpace = {
+        name: "Bookmarks",
+        deleted: false,
+        lastModified: Date.now(),
+      };
+      mergedSpaces.push(everythingSpace);
+    } else {
+      everythingSpace.deleted = false;
+    }
   }
 
   return mergedSpaces;
@@ -1602,6 +1605,19 @@ function loadFromLocalStorage() {
             space.name = "Bookmarks";
           }
         });
+
+        // Deduplicate spaces by name
+        let seenSpaceNames = new Set();
+        bookmarkManagerData.spaces = bookmarkManagerData.spaces.filter(
+          (space) => {
+            let spaceName = typeof space === "string" ? space : space.name;
+            if (seenSpaceNames.has(spaceName)) {
+              return false;
+            }
+            seenSpaceNames.add(spaceName);
+            return true;
+          },
+        );
       }
       if (bookmarkManagerData.currentSpace === "Everything") {
         bookmarkManagerData.currentSpace = "Bookmarks";
@@ -1612,6 +1628,14 @@ function loadFromLocalStorage() {
             const idx = collection.spaces.indexOf("Everything");
             if (idx !== -1) {
               collection.spaces[idx] = "Bookmarks";
+            }
+
+            // If collection is in Bookmarks AND other spaces, remove it from Bookmarks
+            if (collection.spaces.length > 1) {
+              const bookmarksIdx = collection.spaces.indexOf("Bookmarks");
+              if (bookmarksIdx !== -1) {
+                collection.spaces.splice(bookmarksIdx, 1);
+              }
             }
           }
         });
@@ -4967,7 +4991,7 @@ function renderSpaces() {
 
     spaceItem.innerHTML = `
             <span class="space-name">${spaceName}</span>
-            ${spaceName !== "Bookmarks" ? '<button class="delete-space-btn" data-space="' + spaceName + '">×</button>' : ""}
+            ${activeSpaces.length > 1 ? '<button class="delete-space-btn" data-space="' + spaceName + '">×</button>' : ""}
         `;
 
     // Add click listener for space selection
@@ -5059,12 +5083,30 @@ function migrateSpacesToObjectFormat() {
 }
 
 function deleteSpace(spaceName) {
-  if (spaceName === "Bookmarks") {
-    alert('Cannot delete the "Bookmarks" space');
+  // Check active spaces (non-deleted)
+  const activeSpaces = bookmarkManagerData.spaces.filter((s) => !s.deleted);
+
+  // Prevent deleting the very last space
+  if (activeSpaces.length <= 1) {
+    alert("Cannot delete the last remaining space in the system.");
     return;
   }
 
-  if (confirm(`Are you sure you want to delete the space "${spaceName}"?`)) {
+  // Conta quantas coleções estão exclusivamente dentro deste space
+  const exclusiveCollectionsCount = bookmarkManagerData.collections.filter(
+    (c) =>
+      !c.deleted &&
+      c.spaces &&
+      c.spaces.length === 1 &&
+      c.spaces[0] === spaceName,
+  ).length;
+
+  const warningMsg =
+    exclusiveCollectionsCount > 0
+      ? `Are you sure you want to delete the space "${spaceName}"?\n\nWARNING: ${exclusiveCollectionsCount} collection(s) exclusively inside this space will also be deleted.`
+      : `Are you sure you want to delete the space "${spaceName}"?`;
+
+  if (confirm(warningMsg)) {
     // Ensure spaces are in object format
     migrateSpacesToObjectFormat();
 
@@ -5077,24 +5119,32 @@ function deleteSpace(spaceName) {
       spaceObj.lastModified = Date.now();
     }
 
-    // If this was the current space, switch to Bookmarks
+    // If this was the current space, switch to next available active space
     if (bookmarkManagerData.currentSpace === spaceName) {
-      bookmarkManagerData.currentSpace = "Bookmarks";
+      const remainingSpaces = bookmarkManagerData.spaces.filter(
+        (s) => !s.deleted && s.name !== spaceName,
+      );
+      bookmarkManagerData.currentSpace =
+        remainingSpaces.length > 0 ? remainingSpaces[0].name : "Bookmarks";
     }
 
     // Remove this space from all collections that use it
     bookmarkManagerData.collections.forEach((collection) => {
-      if (collection.spaces && Array.isArray(collection.spaces)) {
+      if (
+        !collection.deleted &&
+        collection.spaces &&
+        Array.isArray(collection.spaces)
+      ) {
         const spaceIndex = collection.spaces.indexOf(spaceName);
         if (spaceIndex > -1) {
           collection.spaces.splice(spaceIndex, 1);
-          // Ensure at least Bookmarks remains
-          if (
-            collection.spaces.length === 0 ||
-            !collection.spaces.includes("Bookmarks")
-          ) {
-            collection.spaces = ["Bookmarks"];
+
+          // Se a coleção ficou sem spaces, significa que ela pertencia exclusivamente a este space. Soft-delete.
+          // Option 1 implemented here.
+          if (collection.spaces.length === 0) {
+            collection.deleted = true;
           }
+
           collection.lastModified = Date.now();
         }
       }
@@ -5127,18 +5177,23 @@ function initializeSpaces() {
   // Migrate to object format
   migrateSpacesToObjectFormat();
 
-  // Ensure Bookmarks exists and is not deleted
-  let everythingSpace = bookmarkManagerData.spaces.find(
-    (s) => s.name === "Bookmarks",
+  // Ensure at least one active space exists
+  const activeSpacesForInit = bookmarkManagerData.spaces.filter(
+    (s) => !s.deleted,
   );
-  if (!everythingSpace) {
-    bookmarkManagerData.spaces.unshift({
-      name: "Bookmarks",
-      deleted: false,
-      lastModified: Date.now(),
-    });
-  } else {
-    everythingSpace.deleted = false; // Bookmarks can never be deleted
+  if (activeSpacesForInit.length === 0) {
+    let everythingSpace = bookmarkManagerData.spaces.find(
+      (s) => s.name === "Bookmarks",
+    );
+    if (!everythingSpace) {
+      bookmarkManagerData.spaces.unshift({
+        name: "Bookmarks",
+        deleted: false,
+        lastModified: Date.now(),
+      });
+    } else {
+      everythingSpace.deleted = false;
+    }
   }
 
   // Ensure currentSpace is set and exists
