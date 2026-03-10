@@ -29,4 +29,21 @@ This document details the specific architectural and UX modifications implemente
 
 - **Problem**: Expansion triggers used static text symbols (`v` and `^`) which felt dated and unpolished.
 - **Solution**: Replaced text indicators with SVG vector iconography.
-  - **State Driven**: Added CSS transforms to rotate the chevron icon 180 degrees based on the `.is-open` class state, providing clear visual feedback for the interaction.
+- **State Driven**: Added CSS transforms to rotate the chevron icon 180 degrees based on the `.is-open` class state, providing clear visual feedback for the interaction.
+
+## 3. Data Architecture & Space Management
+
+### The "Bookmarks" Fallback Migration
+
+- **Problem**: The system originally enforced an "Everything" category that acted as an omnipresent bucket. New collections were forced into this category, polluting the user's organization and creating an extra step to assign them to actual targeted spaces.
+- **Solution**: Refactored the data structure to transition from an enforced global group to a standard fallback inbox named "Bookmarks".
+  - **Seamless Migration**: Implemented silent, on-the-fly migration logic that automatically converts legacy "Everything" instances into the new "Bookmarks" standard during data loading, ensuring zero data loss for existing users.
+  - **De-duplication & Clean-up**: Integrated logic that sweeps through collections to remove the "Bookmarks" tag if the collection is actively assigned to any other specific user-created spaces, leaving "Bookmarks" to act solely as a clean inbox for orphaned links.
+
+### Smart Space Deletion & Soft-Delete Cascading
+
+- **Problem**: The global space could not be deleted or managed, and there was no cohesive logic governing what happened to exclusive collections when their parent space was deleted.
+- **Solution**: Built an autonomous space deletion handler prioritizing data consistency and user awareness.
+  - **Dynamic Protections**: The "Bookmarks" label is no longer immortal; any space can be deleted, provided the user retains at least one active space in the system to prevent an irreparably empty app state.
+  - **Exclusive Association Deletion**: Mimicking OS folder behavior, if a user deletes a space that is the _sole_ container for specific collections, those exclusively held collections automatically trigger a soft-delete alongside the parent space.
+  - **Proactive UX Warnings**: The deletion system dynamically scans the data tree to count these exclusive collections and proactively alerts the user via prompt to exactly how many collections will be affected before executing the command.
